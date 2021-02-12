@@ -10,9 +10,10 @@ import io.reactivex.schedulers.Schedulers
 
 class DbManager private constructor(context: Context) {
 
-    private val disposable : CompositeDisposable = CompositeDisposable()
+    private val disposable: CompositeDisposable = CompositeDisposable()
 
     private val db = Room.databaseBuilder(context, AppDatabase::class.java, DB_NAME).build()
+
     fun getUsers(dbCallback: DbCallback) {
         val d = db.userDao()
                 .all
@@ -22,7 +23,7 @@ class DbManager private constructor(context: Context) {
         disposable.add(d)
     }
 
-    fun addUser(dbCallback: DbCallback, user : User) {
+    fun addUser(dbCallback: DbCallback, user: User) {
         val d = Completable.fromAction { db.userDao().insertAll(user) }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -30,10 +31,10 @@ class DbManager private constructor(context: Context) {
         disposable.add(d)
     }
 
-    fun updateUser(dbCallback: DbCallback, oldUserId : Int, newUser: User) {
+    fun updateUser(dbCallback: DbCallback, oldUserId: Int, newUser: User) {
         val d = db.userDao().findById(oldUserId)
-                .flatMapCompletable {
-                    oldUser -> Completable.fromAction{
+                .flatMapCompletable { oldUser ->
+                    Completable.fromAction {
                         db.userDao().updateUser(oldUser.apply {
                             firstName = newUser.firstName
                             lastName = newUser.lastName
@@ -42,20 +43,20 @@ class DbManager private constructor(context: Context) {
                 }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { dbCallback.onUserDeleted() }
+                .subscribe { dbCallback.onUserUpdated() }
         disposable.add(d)
     }
 
     fun deleteUser(dbCallback: DbCallback, id: Int) {
         val d = db.userDao().findById(id)
-                .flatMapCompletable { user -> Completable.fromAction{db.userDao().deleteUser(user)} }
+                .flatMapCompletable { user -> Completable.fromAction { db.userDao().deleteUser(user) } }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { dbCallback.onUserDeleted() }
         disposable.add(d)
     }
 
-    fun disposeAll(){
+    fun disposeAll() {
         disposable.clear()
     }
 
@@ -63,9 +64,8 @@ class DbManager private constructor(context: Context) {
         const val DB_NAME = "app_db"
         private var instance: DbManager? = null
         fun getInstance(context: Context): DbManager? {
-            if (instance == null) {
+            if (instance == null)
                 instance = DbManager(context)
-            }
             return instance
         }
     }

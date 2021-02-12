@@ -65,7 +65,7 @@ class MainActivity : AppCompatActivity(), DbCallback, View.OnClickListener {
         }
     }
 
-    private fun showToast(msg: String, duration: Int = Toast.LENGTH_SHORT) {
-        Toast.makeText(this, msg, duration).show()
+    private fun showToast(msg: String) {
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
     }
 }

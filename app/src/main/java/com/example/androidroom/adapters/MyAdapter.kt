@@ -19,19 +19,20 @@ class MyAdapter(var users: List<User?>) : RecyclerView.Adapter<MyViewHolder>() {
 
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        holder.textId.text = "id: " + users[position]?.uid
-        holder.textName.text = "Name: " + users[position]?.firstName
-        holder.textLastName.text = "Surname: " + users[position]?.lastName
+        users[position]?.let { holder.bind(it) }
     }
 
-    override fun getItemCount(): Int {
-        return users.size
-    }
+    override fun getItemCount() = users.size
+
 
     class MyViewHolder(itemView: View) : ViewHolder(itemView) {
-        val textId: TextView = itemView.findViewById(R.id.id_item)
-        val textName: TextView = itemView.findViewById(R.id.textName_item)
-        val textLastName: TextView = itemView.findViewById(R.id.textLastName_item)
+
+        fun bind(user: User){
+
+            itemView.findViewById<TextView>(R.id.id_item).text = "id: " + user.uid
+            itemView.findViewById<TextView>(R.id.textName_item).text = "Name: " + user.firstName
+            itemView.findViewById<TextView>(R.id.textLastName_item).text = "Surname: " + user.lastName
+        }
     }
 
 }
