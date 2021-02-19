@@ -7,25 +7,30 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.androidroom.R
+import com.example.androidroom.databinding.ActivityMainBinding
 import com.example.androidroom.room.DbCallback
-import com.example.androidroom.room.DbManager
+import com.example.androidroom.room.DbProvider
 import com.example.androidroom.entity.User
-import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), DbCallback, View.OnClickListener {
 
+    lateinit var binding: ActivityMainBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        button_add.setOnClickListener(this)
-        button_get_all.setOnClickListener(this)
-        button_update.setOnClickListener(this)
-        button_delete.setOnClickListener(this)
+        DbProvider.initialize(this)
+        binding.let {
+            it.buttonAdd.setOnClickListener(this)
+            it.buttonGetAll.setOnClickListener(this)
+            it.buttonUpdate.setOnClickListener(this)
+            it.buttonDelete.setOnClickListener(this)
+        }
     }
 
     override fun onDestroy() {
-        DbManager.getInstance(this)?.disposeAll()
+        DbProvider.disposeAll()
         super.onDestroy()
     }
 
@@ -36,23 +41,23 @@ class MainActivity : AppCompatActivity(), DbCallback, View.OnClickListener {
     override fun onUserDeleted() = showToast("user deleted")
 
     private fun add() {
-        if (!TextUtils.isEmpty(user_name.text) && !TextUtils.isEmpty(user_surname.text))
-            DbManager.getInstance(this)?.addUser(
+        if (!TextUtils.isEmpty(binding.userName.text) && !TextUtils.isEmpty(binding.userSurname.text))
+            DbProvider.addUser(
                     this,
-                    User(user_name.text.toString(), user_surname.text.toString())
+                    User(binding.userName.text.toString(), binding.userSurname.text.toString())
             )
     }
 
     private fun update() {
-        if (!TextUtils.isEmpty(uid.text) && !TextUtils.isEmpty(user_name.text) &&
-                !TextUtils.isEmpty(user_surname.text))
-            DbManager.getInstance(this)?.updateUser(this, uid.text.toString().toInt(),
-                    User(user_name.text.toString(), user_surname.text.toString()))
+        if (!TextUtils.isEmpty(binding.uid.text) && !TextUtils.isEmpty(binding.userName.text) &&
+                !TextUtils.isEmpty(binding.userSurname.text))
+            DbProvider.updateUser(this, binding.uid.text.toString().toInt(),
+                    User(binding.userSurname.text.toString(), binding.userSurname.text.toString()))
     }
 
     private fun delete() {
-        if (!TextUtils.isEmpty(uid.text.toString()))
-            DbManager.getInstance(this)?.deleteUser(this, uid.text.toString().toInt())
+        if (!TextUtils.isEmpty(binding.uid.text.toString()))
+            DbProvider.deleteUser(this, binding.uid.text.toString().toInt())
     }
 
     override fun onClick(v: View) {

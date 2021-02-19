@@ -8,11 +8,14 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 
-class DbManager private constructor(context: Context) {
-
+object DbProvider {
+    private const val DB_NAME = "app_db"
+    private lateinit var db: AppDatabase
     private val disposable: CompositeDisposable = CompositeDisposable()
 
-    private val db = Room.databaseBuilder(context, AppDatabase::class.java, DB_NAME).build()
+    fun initialize(context: Context){
+        db = Room.databaseBuilder(context, AppDatabase::class.java, DB_NAME).build()
+    }
 
     fun getUsers(dbCallback: DbCallback) {
         val d = db.userDao()
@@ -58,15 +61,5 @@ class DbManager private constructor(context: Context) {
 
     fun disposeAll() {
         disposable.clear()
-    }
-
-    companion object {
-        const val DB_NAME = "app_db"
-        private var instance: DbManager? = null
-        fun getInstance(context: Context): DbManager? {
-            if (instance == null)
-                instance = DbManager(context)
-            return instance
-        }
     }
 }
